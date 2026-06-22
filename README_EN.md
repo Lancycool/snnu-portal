@@ -7,9 +7,8 @@ It can avoid the trouble caused by manual login every time.
 ## Notes First
 
 1. The account and password are written in `connect.py`.
-2. Do not upload a version with your real account and password to GitHub.
-3. Change your own account info before you test it.
-4. If the school login address changes, update the address in the script too.  
+2. Change your own account info before you test it.
+3. If the school login address changes, update the address in the script too.  
    In most cases, the address does not change. Only the port may change, for example `8601` to `8602`.
 
 ## Requirements
