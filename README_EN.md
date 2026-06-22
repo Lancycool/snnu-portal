@@ -1,8 +1,8 @@
-# Campus Network Authentication Script
+# SNNU Campus Network Authentication Script
 
-This project is a Windows script for campus network login.  
+This project is a Windows script for SNNU campus network login.  
 It first disconnects the current session, then sends a new login request.  
-That can reduce the need to log in by hand.
+It can avoid the trouble caused by manual login every time.
 
 ## Notes First
 
