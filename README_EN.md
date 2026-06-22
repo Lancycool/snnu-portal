@@ -174,6 +174,8 @@ If the path contains spaces, keep the quotes.
 
 6. Click `OK`
 
+Or you can directly click "Browse" in step 4 to select the 'run.bat' and click "OK" directly
+
 ### Step 6: Set Conditions
 
 You can keep this tab as it is.  
