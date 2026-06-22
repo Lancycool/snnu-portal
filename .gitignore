@@ -1,0 +1,12 @@
+.agents/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local Windows files
+Thumbs.db
+Desktop.ini
+
+# Optional local config
+.env
