@@ -10,6 +10,8 @@ It can avoid the trouble caused by manual login every time.
 2. Change your own account info before you test it.
 3. If the school login address changes, update the address in the script too.  
    In most cases, the address does not change. Only the port may change, for example `8601` to `8602`.
+4. This script is mainly designed for a desktop PC or a wired network. After Windows login, the wired network is usually ready, so the `At log on` trigger is enough.
+5. If you use a laptop with SNNU WiFi, you should add another trigger. This trigger runs the script after Windows connects to WiFi.
 
 ## Requirements
 
@@ -108,7 +110,7 @@ You can also run the Python file directly:
 python connect.py
 ```
 
-## Auto Start After Windows Login
+## Auto Start After Windows Login: Wired Network
 
 The most stable method is Windows Task Scheduler.  
 This lets the script run automatically after you log in to Windows.
@@ -203,6 +205,115 @@ If you do not want to change much, leave it alone.
 If everything is correct, the script will run.  
 You can also sign out and sign in again to see whether it starts by itself.
 
+## Auto Start on Laptop WiFi
+
+If you use a laptop with SNNU WiFi, Windows may not connect to WiFi immediately after login.  
+If you only use the `At log on` trigger, the script may run too early.  
+You can add another trigger that runs after WiFi is connected.
+
+### When to Use This
+
+1. You use a laptop
+2. You mainly use SNNU WiFi
+3. You want the script to run after WiFi is connected
+
+### Step 1: Let Windows Connect to SNNU WiFi Automatically
+
+1. Click the network icon in the bottom-right corner
+2. Find the school WiFi, such as `SNNU`
+3. Check `Connect automatically`
+4. Connect to the WiFi once by hand
+
+Then Windows can connect to WiFi by itself next time.  
+After that, Task Scheduler can start the script when WiFi is connected.
+
+### Step 2: Open Task Scheduler
+
+1. Press `Win + S`
+2. Search for `Task Scheduler`
+3. Open it
+
+### Step 3: Edit the Existing Task
+
+If you already created the task for wired network login, edit that task.  
+If you have not created it yet, create a new task.  
+The `General` and `Actions` settings can stay the same as the wired network setup above.
+
+### Step 4: Create a WiFi Trigger
+
+1. Open the `Triggers` tab
+2. Click `New`
+3. Set `Begin the task` to `On an event`
+4. In `Settings`, choose `Custom`
+5. Click `New Event Filter`
+6. Open the `XML` tab
+7. Check `Edit query manually`
+8. If Windows shows a warning, click `Yes`
+
+Paste this XML:
+
+```xml
+<QueryList>
+  <Query Id="0" Path="Microsoft-Windows-WLAN-AutoConfig/Operational">
+    <Select Path="Microsoft-Windows-WLAN-AutoConfig/Operational">
+      *[System[Provider[@Name='Microsoft-Windows-WLAN-AutoConfig'] and (EventID=8001)]]
+    </Select>
+  </Query>
+</QueryList>
+```
+
+This event means Windows has connected to a WiFi network.  
+The script will run after the wireless connection is ready.
+
+### Step 5: Run Only After Connecting to SNNU WiFi
+
+If you do not want the script to run after connecting to any WiFi, use this version.  
+Change `SNNU` to your real school WiFi name.
+
+```xml
+<QueryList>
+  <Query Id="0" Path="Microsoft-Windows-WLAN-AutoConfig/Operational">
+    <Select Path="Microsoft-Windows-WLAN-AutoConfig/Operational">
+      *[System[Provider[@Name='Microsoft-Windows-WLAN-AutoConfig'] and (EventID=8001)]]
+      and
+      *[EventData[Data[@Name='SSID']='SNNU']]
+    </Select>
+  </Query>
+</QueryList>
+```
+
+If you are not sure whether the WiFi name is exactly `SNNU`, use the first version without SSID filtering first.  
+It is easier to make it work.
+
+### Step 6: Set the Action
+
+The `Actions` tab still uses the same setting:
+
+```bat
+/c "E:\Projects\Portal\run.bat"
+```
+
+If your `run.bat` is in another folder, change it to your own absolute path.
+
+### Step 7: Save and Test
+
+1. Save the task
+2. Disconnect WiFi
+3. Connect to SNNU WiFi again
+4. Wait about 2 to 4 seconds
+5. Check whether the script runs automatically
+
+If it does not run, check the WLAN event log first.
+
+The path is:
+
+```text
+Event Viewer -> Applications and Services Logs -> Microsoft -> Windows -> WLAN-AutoConfig -> Operational
+```
+
+The event ID should be `8001`.  
+If this log has no records, right-click `Operational` and choose `Enable Log`.
+
 ## Let It Wait a Few Seconds
 
 If you want a more stable 3-second delay, change `run.bat` to this:
@@ -237,6 +348,12 @@ Check these in Task Scheduler:
 2. The delay is set correctly
 3. The action points to the correct `run.bat`
 4. The task was saved successfully
+
+If you use laptop WiFi, also check these:
+
+1. Windows has connected to SNNU WiFi automatically
+2. The WiFi trigger uses event ID `8001`
+3. The `WLAN-AutoConfig/Operational` log is enabled
 
 ### 3. I want to move the folder
 

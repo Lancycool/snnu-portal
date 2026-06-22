@@ -6,8 +6,10 @@
 ## 先说明
 
 1. 这个脚本会把账号和密码写在 `connect.py` 里。
-3. 你最好先把自己的账号信息改好，再测试运行。
-4. 如果学校的认证地址变了，你也要同步改脚本里的地址。(一般不会变，只会端口做改变8601->8602)
+2. 你最好先把自己的账号信息改好，再测试运行。
+3. 如果学校的认证地址变了，你也要同步改脚本里的地址。(一般不会变，只会端口做改变8601->8602)
+4. 此脚本默认使用场景是台式机或有线网络。电脑登录 Windows 后，网线通常已经连好，所以用“登录时”触发就够了。
+5. 如果你用笔记本连接 SNNU WiFi，建议再加一个“连接 WiFi 后执行”的触发器。这样电脑连上 WiFi 后，脚本会自动认证校园网。
 
 ## 需要的环境
 
@@ -105,7 +107,7 @@ start/min "" pythonw "D:\mycode\Portal\connect.py"
 python connect.py
 ```
 
-## 开机自动运行
+## 开机自动运行：有线网络
 
 下面是最稳的做法。  
 我建议你用 Windows 的“任务计划程序”。  
@@ -201,6 +203,115 @@ python connect.py
 如果一切正常，脚本就会执行。  
 你也可以注销后重新登录，看看它会不会自动跑。
 
+## 笔记本 WiFi 自动运行
+
+如果你用笔记本连接 SNNU WiFi，电脑登录 Windows 时可能还没有连上无线网络。  
+这时只用“登录时”触发，脚本可能会跑得太早。  
+你可以再加一个“连接 WiFi 后执行”的触发器。
+
+### 适用情况
+
+1. 你使用笔记本电脑
+2. 你主要通过 SNNU WiFi 上网
+3. 你希望电脑连上 WiFi 后再执行认证脚本
+
+### 第一步：先让 Windows 自动连接 SNNU WiFi
+
+1. 点任务栏右下角的网络图标
+2. 找到学校的 WiFi，比如 `SNNU`
+3. 勾选“自动连接”
+4. 手动连接一次 WiFi
+
+这样 Windows 下次会先自动连上 WiFi。  
+然后任务计划程序可以在 WiFi 连接成功后启动脚本。
+
+### 第二步：打开任务计划程序
+
+1. 按 `Win + S`
+2. 搜索“任务计划程序”
+3. 打开它
+
+### 第三步：编辑已有任务
+
+如果你已经按上面的“有线网络”方法建好了任务，就直接编辑那个任务。  
+如果你还没有建任务，可以新建一个任务。  
+“常规”和“操作”的设置可以和上面保持一样。
+
+### 第四步：新建 WiFi 触发器
+
+1. 切到“触发器”选项卡
+2. 点“新建”
+3. 在“开始任务”里选择“发生事件时”
+4. 在“设置”里选择“自定义”
+5. 点“新建事件筛选器”
+6. 切到“XML”选项卡
+7. 勾选“手动编辑查询”
+8. 如果系统弹出提示，就点“是”
+
+把下面这段粘进去：
+
+```xml
+<QueryList>
+  <Query Id="0" Path="Microsoft-Windows-WLAN-AutoConfig/Operational">
+    <Select Path="Microsoft-Windows-WLAN-AutoConfig/Operational">
+      *[System[Provider[@Name='Microsoft-Windows-WLAN-AutoConfig'] and (EventID=8001)]]
+    </Select>
+  </Query>
+</QueryList>
+```
+
+这个事件表示 Windows 已经成功连接到一个 WiFi。  
+它会在电脑连上无线网络后执行脚本。
+
+### 第五步：只在连接 SNNU WiFi 后执行
+
+如果你不想让脚本在连接任何 WiFi 后都运行，可以用下面这个版本。  
+你需要把 `SNNU` 改成你的学校 WiFi 名称。
+
+```xml
+<QueryList>
+  <Query Id="0" Path="Microsoft-Windows-WLAN-AutoConfig/Operational">
+    <Select Path="Microsoft-Windows-WLAN-AutoConfig/Operational">
+      *[System[Provider[@Name='Microsoft-Windows-WLAN-AutoConfig'] and (EventID=8001)]]
+      and
+      *[EventData[Data[@Name='SSID']='SNNU']]
+    </Select>
+  </Query>
+</QueryList>
+```
+
+如果你不确定 WiFi 名称是否完全是 `SNNU`，可以先用上一段不筛选 SSID 的版本。  
+它更容易成功。
+
+### 第六步：设置操作
+
+“操作”选项卡仍然使用同一个设置：
+
+```bat
+/c "E:\Projects\Portal\run.bat"
+```
+
+如果你的 `run.bat` 在别的目录，就改成你自己的绝对路径。
+
+### 第七步：保存并测试
+
+1. 保存任务
+2. 断开 WiFi
+3. 重新连接 SNNU WiFi
+4. 等 2 到 4 秒
+5. 看脚本是否自动执行
+
+如果它没有执行，可以先去“事件查看器”里检查 WLAN 事件。
+
+路径是：
+
+```text
+事件查看器 -> 应用程序和服务日志 -> Microsoft -> Windows -> WLAN-AutoConfig -> Operational
+```
+
+你要找的事件 ID 是 `8001`。  
+如果这个日志没有记录，先右键 `Operational`，再选择“启用日志”。
+
 ## 让它延迟几秒再跑
 
 如果你想要更稳的 3 秒延迟，可以把 `run.bat` 改成这样：
@@ -235,6 +346,12 @@ start "" /min pythonw "E:\Projects\Portal\connect.py"
 2. 有没有设置延迟
 3. 动作是不是指向了正确的 `run.bat`
 4. 任务有没有保存成功
+
+如果你用的是笔记本 WiFi，还要检查：
+
+1. Windows 是否已经自动连接 SNNU WiFi
+2. WiFi 触发器是不是事件 ID `8001`
+3. `WLAN-AutoConfig/Operational` 日志是否启用
 
 ### 3. 为什么我想换目录
 
