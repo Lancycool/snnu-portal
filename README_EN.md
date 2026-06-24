@@ -156,7 +156,7 @@ If you do not want a window to stay open, you can keep the default options.
 2. Click `New`
 3. Set `Begin the task` to `At log on`
 4. Choose your Windows user
-5. If your system supports `Delay task for`, you can turn it on
+5. If your system supports `Delay task for`, you can turn it on, fill in 2 to 4 seconds (manually change after selecting 30 seconds)
 6. Many computers only support minute-level delay here, so do not rely on this alone
 
 If you want the script to run about 2 to 4 seconds after login, the safest way is to let `run.bat` wait for 3 seconds first.  
