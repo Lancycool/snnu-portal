@@ -310,7 +310,7 @@ If it does not run, check the WLAN event log first.
 The path is:
 
 ```text
-Event Viewer -> Applications and Services Logs -> Microsoft -> Windows -> WLAN-AutoConfig -> Operational
+Right-click the window icon -> Event Viewer -> Applications and Services Logs -> Microsoft -> Windows -> WLAN-AutoConfig -> Operational
 ```
 
 The event ID should be `8001`.  

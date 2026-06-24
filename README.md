@@ -308,7 +308,7 @@ python connect.py
 路径是：
 
 ```text
-事件查看器 -> 应用程序和服务日志 -> Microsoft -> Windows -> WLAN-AutoConfig -> Operational
+Window图标右键 -> 事件查看器 -> 应用程序和服务日志 -> Microsoft -> Windows -> WLAN-AutoConfig -> Operational
 ```
 
 你要找的事件 ID 是 `8001`。  
