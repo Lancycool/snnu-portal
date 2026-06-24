@@ -4,6 +4,11 @@ This project is a Windows script for SNNU campus network login.
 It first disconnects the current session, then sends a new login request.  
 It can avoid the trouble caused by manual login every time.
 
+## Quick Links
+
+1. [Wired Network Auto Start](#wired-network)
+2. [Laptop WiFi Auto Start](#wifi-network)
+
 ## Notes First
 
 1. The account and password are written in `connect.py`.
@@ -110,6 +115,8 @@ You can also run the Python file directly:
 python connect.py
 ```
 
+<a id="wired-network"></a>
+
 ## Auto Start After Windows Login: Wired Network
 
 The most stable method is Windows Task Scheduler.  
@@ -206,6 +213,8 @@ If you do not want to change much, leave it alone.
 
 If everything is correct, the script will run.  
 You can also sign out and sign in again to see whether it starts by itself.
+
+<a id="wifi-network"></a>
 
 ## Auto Start on Laptop WiFi
 

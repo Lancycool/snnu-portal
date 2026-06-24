@@ -3,6 +3,11 @@
 这个项目是一个 Windows 下的SNNU校园网自动认证脚本。  
 它会先执行一次断开，再发起一次连接。可以避免每次手动登录带来的麻烦。
 
+## 快速定位
+
+1. [有线网络开机自动运行](#wired-network)
+2. [笔记本 WiFi 自动运行](#wifi-network)
+
 ## 先说明
 
 1. 这个脚本会把账号和密码写在 `connect.py` 里。
@@ -107,6 +112,8 @@ start/min "" pythonw "D:\mycode\Portal\connect.py"
 python connect.py
 ```
 
+<a id="wired-network"></a>
+
 ## 开机自动运行：有线网络
 
 下面是最稳的做法。  
@@ -204,6 +211,8 @@ python connect.py
 
 如果一切正常，脚本就会执行。  
 你也可以注销后重新登录，看看它会不会自动跑。
+
+<a id="wifi-network"></a>
 
 ## 笔记本 WiFi 自动运行
 
