@@ -1,6 +1,6 @@
 # SNNU Campus Network Authentication Script
 
-[中文](README.md) | [English](README_EN.md)
+[中文](README.md) | [English]
 
 This project is a Windows script for SNNU campus network login.  
 It first disconnects the current session, then sends a new login request.  
@@ -54,7 +54,7 @@ Replace it with your student ID or network account.
 ### 2. Password
 
 ```python
-password = '''xxxxxxxx'''
+password = 'xxxxxxxx'
 ```
 
 Replace it with your campus network password.
@@ -71,6 +71,7 @@ Set this value by network provider:
 2. Use `unicom` for China Unicom
 3. Use `mobile` for China Mobile
 4. Use `telecom` for China Telecom
+(Fill in between the two single quotes)
 
 ### 4. Campus Network Address
 

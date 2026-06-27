@@ -4,7 +4,7 @@ import requests
 account = 'xxxxxxx'
 # 你的账号（学号），替换xxxxxx
 
-password = '''xxxxxxx'''
+password = 'xxxxxxx'
 # 你的密码，替换xxxxxxx
 # 请勿将修改后的文件发给他人，以防信息泄露！
 
@@ -13,6 +13,7 @@ method = ''
 # 联通填unicom
 # 移动填mobile
 # 电信填telecom
+# 在两个单引号中间填写
 
 
 url = 'http://202.117.144.205:8601/snnuportal/login'

@@ -1,6 +1,6 @@
 # SNNU校园网认证脚本
 
-[中文](README.md) | [English](README_EN.md)
+[中文] | [English](README_EN.md)
 
 这个项目是一个 Windows 下的SNNU校园网自动认证脚本。  
 它会先执行一次断开，再发起一次连接。可以避免每次手动登录带来的麻烦。
@@ -52,7 +52,7 @@ account = 'xxxxxxxx'
 ### 2. 密码
 
 ```python
-password = '''xxxxxxxx'''
+password = 'xxxxxxxx'
 ```
 
 把它改成你的校园网密码。
@@ -69,6 +69,7 @@ method = ''
 2. 联通填 `unicom`
 3. 移动填 `mobile`
 4. 电信填 `telecom`
+(在两个单引号中间填写)
 
 ### 4. 校园网地址
 
