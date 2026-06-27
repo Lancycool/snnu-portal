@@ -1,5 +1,7 @@
 # SNNU校园网认证脚本
 
+[中文](README.md) | [English](README_EN.md)
+
 这个项目是一个 Windows 下的SNNU校园网自动认证脚本。  
 它会先执行一次断开，再发起一次连接。可以避免每次手动登录带来的麻烦。
 
