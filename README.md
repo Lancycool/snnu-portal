@@ -1,14 +1,15 @@
-# SNNU校园网认证脚本
+﻿# SNNU校园网认证脚本
 
 中文 | [English](README_EN.md)
 
-这个项目是一个 Windows 下的SNNU校园网自动认证脚本。  
+这个项目是一个 Windows 和 Ubuntu 下的SNNU校园网自动认证脚本。  
 它会先执行一次断开，再发起一次连接。可以避免每次手动登录带来的麻烦。
 
 ## 快速定位
 
 1. [有线网络开机自动运行](#wired-network)
 2. [笔记本 WiFi 自动运行](#wifi-network)
+3. [Ubuntu 登录后自动运行](#ubuntu-autostart)
 
 ## 先说明
 
@@ -17,6 +18,7 @@
 3. 如果学校的认证地址变了，你也要同步改脚本里的地址。(一般不会变，只会端口做改变8601->8602)
 4. 此脚本默认使用场景是台式机或有线网络。电脑登录 Windows 后，网线通常已经连好，所以用“登录时”触发就够了。
 5. 如果你用笔记本连接 SNNU WiFi，建议再加一个“连接 WiFi 后执行”的触发器。这样电脑连上 WiFi 后，脚本会自动认证校园网。
+6. 如果你使用 Ubuntu，不能使用 `run.bat`。你需要用 `python3` 运行脚本，并用 `systemd` 设置登录后自动运行。
 
 ## 需要的环境
 
@@ -325,6 +327,150 @@ Window图标右键 -> 事件查看器 -> 应用程序和服务日志 -> Microsof
 
 你要找的事件 ID 是 `8001`。  
 如果这个日志没有记录，先右键 `Operational`，再选择“启用日志”。
+
+<a id="ubuntu-autostart"></a>
+
+## Ubuntu 登录后自动运行
+
+Ubuntu 下不要使用 `run.bat`。  
+你需要直接运行 `connect.py`。  
+我建议使用 `systemd --user`。它会在用户登录 Ubuntu 后自动执行脚本。
+
+### 第一步：安装环境
+
+先安装 Python 和 `requests`：
+
+```bash
+sudo apt update
+sudo apt install python3 python3-pip
+python3 -m pip install requests
+```
+
+如果系统提示不能直接用 `pip` 安装，可以使用：
+
+```bash
+sudo apt install python3-requests
+```
+
+### 第二步：确认脚本路径
+
+假设你把项目放在这里：
+
+```bash
+/home/yourname/Portal
+```
+
+你需要确认 `connect.py` 的完整路径：
+
+```bash
+/home/yourname/Portal/connect.py
+```
+
+你要把下面示例里的 `yourname` 改成你的 Ubuntu 用户名。
+
+### 第三步：手动测试
+
+先进入项目目录：
+
+```bash
+cd /home/yourname/Portal
+```
+
+再手动运行：
+
+```bash
+python3 connect.py
+```
+
+如果脚本能正常认证，再继续设置自动运行。
+
+### 第四步：创建 systemd 用户服务
+
+创建用户服务目录：
+
+```bash
+mkdir -p ~/.config/systemd/user
+```
+
+创建服务文件：
+
+```bash
+nano ~/.config/systemd/user/snnu-portal.service
+```
+
+把下面内容写进去：
+
+```ini
+[Unit]
+Description=SNNU Campus Network Auto Login
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 5
+ExecStart=/usr/bin/python3 /home/yourname/Portal/connect.py
+
+[Install]
+WantedBy=default.target
+```
+
+你必须把 `/home/yourname/Portal/connect.py` 改成自己的真实路径。  
+`ExecStartPre=/bin/sleep 5` 表示登录后先等 5 秒。  
+如果网络连接比较慢，你可以改成 `10`。
+
+保存文件后，按 `Ctrl + O`，再按回车。  
+退出文件时，按 `Ctrl + X`。
+
+### 第五步：启用自动运行
+
+重新加载用户服务：
+
+```bash
+systemctl --user daemon-reload
+```
+
+启用服务：
+
+```bash
+systemctl --user enable snnu-portal.service
+```
+
+立刻测试一次：
+
+```bash
+systemctl --user start snnu-portal.service
+```
+
+查看运行状态：
+
+```bash
+systemctl --user status snnu-portal.service
+```
+
+如果状态里没有明显报错，说明服务可以运行。
+
+### 第六步：重启测试
+
+你可以重启 Ubuntu：
+
+```bash
+reboot
+```
+
+登录系统后，服务会自动执行一次脚本。
+
+### 如果 Ubuntu 使用 WiFi
+
+如果你使用 WiFi，系统登录后可能还没有连上网络。  
+这时你可以把等待时间调长一点：
+
+```ini
+ExecStartPre=/bin/sleep 10
+```
+
+如果你想在每次网络连接后执行脚本，可以使用 NetworkManager 的 dispatcher。  
+这个方法更适合 WiFi，但配置更偏系统级。  
+如果只是个人电脑，先用 `systemd --user` 加等待时间就够了。
 
 ## 让它延迟几秒再跑
 

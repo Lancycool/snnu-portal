@@ -1,8 +1,8 @@
-# SNNU Campus Network Authentication Script
+﻿# SNNU Campus Network Authentication Script
 
 [中文](README.md) | English
 
-This project is a Windows script for SNNU campus network login.  
+This project is a Windows and Ubuntu script for SNNU campus network login.  
 It first disconnects the current session, then sends a new login request.  
 It can avoid the trouble caused by manual login every time.
 
@@ -10,6 +10,7 @@ It can avoid the trouble caused by manual login every time.
 
 1. [Wired Network Auto Start](#wired-network)
 2. [Laptop WiFi Auto Start](#wifi-network)
+3. [Ubuntu Auto Start After Login](#ubuntu-autostart)
 
 ## Notes First
 
@@ -19,6 +20,7 @@ It can avoid the trouble caused by manual login every time.
    In most cases, the address does not change. Only the port may change, for example `8601` to `8602`.
 4. This script is mainly designed for a desktop PC or a wired network. After Windows login, the wired network is usually ready, so the `At log on` trigger is enough.
 5. If you use a laptop with SNNU WiFi, you should add another trigger. This trigger runs the script after Windows connects to WiFi.
+6. If you use Ubuntu, do not use `run.bat`. You need to run the script with `python3` and use `systemd` for auto start after login.
 
 ## Requirements
 
@@ -327,6 +329,150 @@ Right-click the window icon -> Event Viewer -> Applications and Services Logs ->
 
 The event ID should be `8001`.  
 If this log has no records, right-click `Operational` and choose `Enable Log`.
+
+<a id="ubuntu-autostart"></a>
+
+## Ubuntu Auto Start After Login
+
+Do not use `run.bat` on Ubuntu.  
+You need to run `connect.py` directly.  
+The recommended method is `systemd --user`. It runs the script after the user logs in to Ubuntu.
+
+### Step 1: Install Requirements
+
+Install Python and `requests` first:
+
+```bash
+sudo apt update
+sudo apt install python3 python3-pip
+python3 -m pip install requests
+```
+
+If the system does not allow direct `pip` installation, use:
+
+```bash
+sudo apt install python3-requests
+```
+
+### Step 2: Confirm the Script Path
+
+Assume you put this project here:
+
+```bash
+/home/yourname/Portal
+```
+
+Then the full path of `connect.py` is:
+
+```bash
+/home/yourname/Portal/connect.py
+```
+
+Change `yourname` in the examples to your real Ubuntu username.
+
+### Step 3: Test Manually
+
+Enter the project folder first:
+
+```bash
+cd /home/yourname/Portal
+```
+
+Run the script:
+
+```bash
+python3 connect.py
+```
+
+If the script works, continue with the auto start setup.
+
+### Step 4: Create a systemd User Service
+
+Create the user service folder:
+
+```bash
+mkdir -p ~/.config/systemd/user
+```
+
+Create the service file:
+
+```bash
+nano ~/.config/systemd/user/snnu-portal.service
+```
+
+Write this content into the file:
+
+```ini
+[Unit]
+Description=SNNU Campus Network Auto Login
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 5
+ExecStart=/usr/bin/python3 /home/yourname/Portal/connect.py
+
+[Install]
+WantedBy=default.target
+```
+
+You must change `/home/yourname/Portal/connect.py` to your real path.  
+`ExecStartPre=/bin/sleep 5` means the service waits 5 seconds after login.  
+If your network connects slowly, change `5` to `10`.
+
+Press `Ctrl + O`, then press Enter to save.  
+Press `Ctrl + X` to exit.
+
+### Step 5: Enable Auto Start
+
+Reload user services:
+
+```bash
+systemctl --user daemon-reload
+```
+
+Enable the service:
+
+```bash
+systemctl --user enable snnu-portal.service
+```
+
+Test it now:
+
+```bash
+systemctl --user start snnu-portal.service
+```
+
+Check the status:
+
+```bash
+systemctl --user status snnu-portal.service
+```
+
+If there is no clear error in the status output, the service can run.
+
+### Step 6: Reboot and Test
+
+You can reboot Ubuntu:
+
+```bash
+reboot
+```
+
+After you log in, the service will run the script once.
+
+### If Ubuntu Uses WiFi
+
+If you use WiFi, the network may not be ready right after login.  
+You can increase the wait time:
+
+```ini
+ExecStartPre=/bin/sleep 10
+```
+
+If you want the script to run every time the network connects, you can use NetworkManager dispatcher.  
+That method is better for WiFi, but it is more system-level.  
+For a personal computer, `systemd --user` with a longer wait time is usually enough.
 
 ## Let It Wait a Few Seconds
 
